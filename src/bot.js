@@ -42,7 +42,9 @@ bot.callbackQuery(
   async (ctx) => {
     await ctx.conversation.exit("jobApplication");
     await bot.api.sendMessage(
-      process.env.ADMIN_ID,
+      process.env.NODE_ENV === "development"
+        ? process.env.ADMIN_ID
+        : process.env.MAX_ID,
       `📌\nПришла заявка из бота Ток-Так.рф\n<b>Имя:</b> ${ctx.session.name}\n<b>Телефон:</b> ${ctx.session.phone}`,
       { parse_mode: "HTML", reply_markup: inlineAdminKeyboard }
     );
