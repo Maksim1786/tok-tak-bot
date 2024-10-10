@@ -2,6 +2,25 @@ const { InlineKeyboard, Keyboard } = require("grammy");
 const { faqKeyboardData } = require("./faq");
 const { Menu } = require("@grammyjs/menu");
 
+const inlineKeyboardsCommands = {
+  notFinished: {
+    yes: "sendConversation",
+    no: "stopConversation",
+  },
+  submit: {
+    yes: "application submitted",
+    no: "editing an application",
+  },
+};
+
+const submitKeyboard = new InlineKeyboard()
+  .text("Да", inlineKeyboardsCommands.submit.yes)
+  .text("Редактировать", inlineKeyboardsCommands.submit.no);
+
+const notFinishedKeyboard = new InlineKeyboard()
+  .text("Да", inlineKeyboardsCommands.notFinished.yes)
+  .text("Нет", inlineKeyboardsCommands.notFinished.no);
+
 const commands = [
   { command: "/start", description: "Запустить бота" },
   { command: "/help", description: "Помощь" },
@@ -10,7 +29,7 @@ const commands = [
 
 const menuButton = {
   zakaz: "Заказать услугу",
-  faq: "FAQ",
+  // faq: "FAQ",
 };
 
 // Создаём клавиатуру
@@ -41,5 +60,8 @@ module.exports = {
   keyboard,
   menuButton,
   faqInlineMenu,
+  submitKeyboard,
   inlineAdminKeyboard,
+  notFinishedKeyboard,
+  inlineKeyboardsCommands,
 };

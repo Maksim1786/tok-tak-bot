@@ -1,44 +1,50 @@
-const { InlineKeyboard } = require("grammy");
-const submitText = "application submitted";
-const editText = "editing an application";
-const keyboard = new InlineKeyboard()
-  .text("Да", submitText)
-  .text("Редактировать", editText);
+const {
+  submitKeyboard,
+  notFinishedKeyboard,
+  inlineKeyboardsCommands,
+} = require("../constants/keyboard");
 
 async function jobApplication(conversation, ctx) {
   await ctx.reply(
     "Поделитесь с нами вашим номером телефона и мы вам перезвоним\n❗Вводите только цифры❗"
   );
 
-  let phoneNumber = await conversation.form.int(async (number) => {
-    if (!Number.isInteger(number.msg.text)) {
-      await ctx.reply("Вводите только цифры");
-    }
-  });
+  const phoneNumber = await conversation.form.text();
 
-  if (!`${phoneNumber}`.startsWith("+")) {
-    const phoneNumberStr = `${phoneNumber}`;
-    const firstNumber = `+${Number(phoneNumberStr.slice(0, 1)) - 1}`;
+  let cleanNumber = phoneNumber.replaceAll(new RegExp(/[-|(|)|\s]/g), "");
 
-    phoneNumber = `${firstNumber}${phoneNumberStr.slice(1)}`;
+  if (!Number.isInteger(Number(cleanNumber))) {
+    await ctx.reply("Вводите только цифры");
+    return jobApplication(conversation, ctx);
+  }
+  if (!/^\+?\d{11}$/.test(cleanNumber)) {
+    await ctx.reply("Номер телефона должен иметь только 11 цифр");
+    return jobApplication(conversation, ctx);
   }
 
-  conversation.session.phone = phoneNumber;
+  if (!cleanNumber.startsWith("+")) {
+    const firstNumber = `+${Number(cleanNumber.slice(0, 1)) - 1}`;
+    cleanNumber = `${firstNumber}${cleanNumber.slice(1)}`;
+  }
+
+  conversation.session.phone = cleanNumber;
   await ctx.reply("Прекрасно! Как вас зовут?");
   const userName = await conversation.form.text();
   conversation.session.name = userName;
   await ctx.reply(
-    `Ваши данные:\n<b>Имя:</b> ${conversation.session.name}\n<b>Телефон:</b> ${conversation.session.phone}\nВсё верно?`,
+    `Ваши данные:\n<b>Имя:</b> ${userName}\n<b>Телефон:</b> ${phoneNumber}\nВсё верно?`,
     {
       parse_mode: "HTML",
-      reply_markup: keyboard,
+      reply_markup: submitKeyboard,
     }
   );
   const { match } = await conversation.waitForCallbackQuery(
-    [submitText, editText],
+    [inlineKeyboardsCommands.submit.yes, inlineKeyboardsCommands.submit.yes],
     {
       otherwise: (ctx) =>
-        ctx.reply("Используйте кнопки!", { reply_markup: keyboard }),
+        ctx.reply("Вы заполнили, но не отправили заявку. Отправить?", {
+          reply_markup: notFinishedKeyboard,
+        }),
     }
   );
 
@@ -49,6 +55,5 @@ async function jobApplication(conversation, ctx) {
 }
 
 module.exports = {
-  submitText,
   jobApplication,
 };
