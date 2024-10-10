@@ -1,0 +1,20 @@
+{
+  "name": "tgbot",
+  "version": "1.0.0",
+  "description": "Телеграмм бот для сайта ток-так.рф",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/bot.js",
+    "start:local": "nodemon src/bot.js"
+  },
+  "author": "Igor Valnev",
+  "license": "ISC",
+  "dependencies": {
+    "@grammyjs/conversations": "^1.2.0",
+    "@grammyjs/hydrate": "^1.4.1",
+    "@grammyjs/menu": "^1.2.2",
+    "dotenv": "^16.4.5",
+    "grammy": "^1.30.0",
+    "nodemon": "^3.1.7"
+  }
+}
